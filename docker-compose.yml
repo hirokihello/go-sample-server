@@ -1,0 +1,36 @@
+version: '3'
+services:
+  db:
+    image: mysql:5.7
+    ports:
+      - "18080:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: "password"
+      MYSQL_DATABASE: "sample"
+      # MYSQL_USER: "root"
+      # MYSQL_PASSWORD: "password"
+    volumes:
+      - /var/lib/mysql
+    command: mysqld --max_allowed_packet=16M --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: go run main.go
+    volumes:
+      - .:/go/src/api/
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    tty: true
+    stdin_open: true
+    networks:
+      default:
+        aliases:
+          - go_web
+volumes:
+  db:
+networks:
+  go_network:
+    external: true
